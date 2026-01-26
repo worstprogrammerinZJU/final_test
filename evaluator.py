@@ -1,80 +1,67 @@
 import os
 import subprocess
-import time
 import csv
 
-def run_detailed_evaluation():
+def analyze_signature(asm_content):
+    """
+    静态分析汇编特征：识别 malloc、浮点寄存器等
+    """
+    # 识别是否调用了 malloc
+    if "bl _malloc" in asm_content or "bl malloc" in asm_content:
+        return "TYPE_MALLOC"
+    
+    # 识别是否使用了浮点寄存器 (s0-s7, d0-d7)
+    if any(f" {r}" in asm_content for r in ["s0", "s1", "d0", "d1"]):
+        return "TYPE_FLOAT"
+    
+    return "TYPE_GENERAL"
+
+def run_smart_evaluation():
     asm_dir = "./generated_asm"
     harness = "test_harness.c"
-    
-    # 统计初始化
     results = []
-    stats = {"total": 0, "compile_ok": 0, "run_ok": 0}
-    
-    if not os.path.exists(asm_dir):
-        print("Error: generated_asm folder missing!")
-        return
 
     files = sorted([f for f in os.listdir(asm_dir) if f.endswith(".s")])
-    stats["total"] = len(files)
-
-    print(f"{'FILE':<30} | {'COMPILE':<10} | {'EXECUTE':<10}")
-    print("-" * 55)
+    
+    print(f"{'FILE':<25} | {'DETECTED TYPE':<15} | {'COMPILE':<8} | {'RUN':<8}")
+    print("-" * 65)
 
     for filename in files:
         asm_path = os.path.join(asm_dir, filename)
+        with open(asm_path, 'r') as f:
+            content = f.read()
+        
+        # 1. 智能识别参数类型
+        sig_type = analyze_signature(content)
+        
         exe_name = f"./temp_{filename}.out"
-        
-        status = {"file": filename, "compile": "FAIL", "run": "SKIP", "error": ""}
+        status = {"file": filename, "type": sig_type, "compile": "FAIL", "run": "SKIP"}
 
-        # 1. 编译阶段 (指定 arm64 架构)
-        # 注意：这里加入了 -lm 链接数学库，防止你的汇编调用了 sqrt 等函数
-        cmd_compile = f"clang -arch arm64 -O0 {harness} {asm_path} -o {exe_name} -lm"
-        cp = subprocess.run(cmd_compile, shell=True, capture_output=True, text=True)
-        
+        # 2. 编译：通过 -D 传入宏定义，切换 C 驱动的参数库
+        # 加入 -lm 处理可能的数学函数
+        compile_cmd = f"clang -arch arm64 -O0 -D{sig_type} {harness} {asm_path} -o {exe_name} -lm"
+        cp = subprocess.run(compile_cmd, shell=True, capture_output=True, text=True)
+
         if cp.returncode == 0:
             status["compile"] = "OK"
-            stats["compile_ok"] += 1
-            
-            # 2. 执行阶段 (加入 2 秒超时防止死循环)
+            # 3. 运行探测 (2秒超时)
             try:
                 rp = subprocess.run(exe_name, shell=True, capture_output=True, text=True, timeout=2)
-                if rp.returncode == 0:
-                    status["run"] = "OK"
-                    stats["run_ok"] += 1
-                else:
-                    status["run"] = f"FAIL({rp.returncode})"
-                    status["error"] = rp.stderr
+                status["run"] = "OK" if rp.returncode == 0 else f"ERR({rp.returncode})"
             except subprocess.TimeoutExpired:
                 status["run"] = "TIMEOUT"
         else:
-            status["error"] = cp.stderr
+            status.update({"compile": "FAIL", "error": cp.stderr})
 
-        # 打印实时明细
-        print(f"{filename:<30} | {status['compile']:<10} | {status['run']:<10}")
+        print(f"{filename:<25} | {sig_type:<15} | {status['compile']:<8} | {status['run']:<8}")
         results.append(status)
-        
-        # 清理临时文件
         if os.path.exists(exe_name): os.remove(exe_name)
 
-    # 保存明细到 CSV
-    with open("detailed_results.csv", "w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=["file", "compile", "run", "error"])
+    # 保存报告
+    with open("detailed_report.csv", "w") as f:
+        writer = csv.DictWriter(f, fieldnames=["file", "type", "compile", "run", "error"])
         writer.writeheader()
         writer.writerows(results)
 
-    # 打印总报表
-    report = f"""
-==================================================
-        GG EVALUATION FINAL SUMMARY
-==================================================
-TOTAL FILES      : {stats['total']}
-COMPILE SUCCESS  : {stats['compile_ok']} ({(stats['compile_ok']/stats['total'])*100:.1f}%)
-EXECUTE SUCCESS  : {stats['run_ok']} ({(stats['run_ok']/stats['total'])*100:.1f}%)
-==================================================
-    """
-    print(report)
-    with open("quantitative_report.txt", "w") as f: f.write(report)
-
 if __name__ == "__main__":
-    run_detailed_evaluation()
+    run_smart_evaluation()
