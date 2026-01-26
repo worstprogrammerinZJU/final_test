@@ -2,40 +2,54 @@
 #include <stdlib.h>
 #include <string.h>
 
-// 根据编译时定义的 TYPE 来决定函数原型
+/**
+ * 参数库说明：
+ * TYPE_MALLOC:  int* func0(int n)      - 适用于需要长度并分配内存的函数
+ * TYPE_FLOAT:   int  func0(float*, int, float) - 适用于浮点计算逻辑
+ * TYPE_GENERAL: int  func0(void*, int) - 适用于通用数组/字符串处理
+ */
+
 #ifdef TYPE_MALLOC
-    // 针对你刚才那个出错的文件：输入整数，返回指针
     extern int* func0(int n);
 #elif defined(TYPE_FLOAT)
-    // 针对浮点数计算：指针 + 整数 + 浮点阈值
     extern int func0(float* arr, int n, float threshold);
 #else
-    // 默认通用型：指针 + 长度
     extern int func0(void* buf, int n);
 #endif
 
 int main() {
-    printf("--- Execution Start ---\n");
+    printf("[Harness] Execution started...\n");
 
 #ifdef TYPE_MALLOC
-    int n = 10;
+    // 针对 malloc 类函数，喂入合理的长度
+    int n = 32; 
+    printf("[Harness] Mode: MALLOC, Input n: %d\n", n);
     int* res = func0(n);
     if (res != NULL) {
-        printf("Malloc Success, first element address: %p\n", res);
-        free(res); // 必须释放，防止泄露
+        printf("[Harness] Success. Memory allocated at %p, Data[0]: %d\n", res, res[0]);
+        // 注意：这里为了安全不强制 free，防止汇编返回的不是 malloc 的原始地址
+    } else {
+        printf("[Harness] Failed. Malloc returned NULL.\n");
     }
+
 #elif defined(TYPE_FLOAT)
-    float data[10] = {1.1, 2.2, 3.3, 4.4, 5.5};
-    int res = func0(data, 5, 0.5f);
-    printf("Float Func Return: %d\n", res);
+    // 针对浮点类函数
+    float data[10] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f};
+    float threshold = 0.5f;
+    printf("[Harness] Mode: FLOAT, Threshold: %f\n", threshold);
+    int res = func0(data, 10, threshold);
+    printf("[Harness] Return Value: %d\n", res);
+
 #else
-    // 通用探测：分配一个大缓冲区防止越界
-    void* buffer = malloc(4096);
-    int res = func0(buffer, 10);
-    printf("General Func Return: %d\n", res);
+    // 通用模式：分配足够大的空间防止非法访问
+    int buf_size = 1024 * 1024; // 1MB Super Buffer
+    void* buffer = calloc(buf_size, 1); 
+    printf("[Harness] Mode: GENERAL, Buffer: 1MB\n");
+    int res = func0(buffer, 100);
+    printf("[Harness] Return Value: %d\n", res);
     free(buffer);
 #endif
 
-    printf("--- Execution End ---\n");
+    printf("[Harness] Execution finished.\n");
     return 0;
 }
