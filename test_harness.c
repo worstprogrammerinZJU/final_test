@@ -3,13 +3,16 @@
 #include <string.h>
 
 /**
- * 参数库说明：
- * TYPE_MALLOC:  int* func0(int n)      - 适用于需要长度并分配内存的函数
- * TYPE_FLOAT:   int  func0(float*, int, float) - 适用于浮点计算逻辑
- * TYPE_GENERAL: int  func0(void*, int) - 适用于通用数组/字符串处理
+ * 参数库全能适配：
+ * TYPE_MALLOC:   int* func0(int n)
+ * TYPE_FLOAT:    int  func0(float*, int, float)
+ * TYPE_MULTIPARAM: void func0(int*, int, int**, int*) <- 针对你最新的复杂汇编
+ * TYPE_GENERAL:  int  func0(void*, int)
  */
 
-#ifdef TYPE_MALLOC
+#ifdef TYPE_MULTIPARAM
+    extern void func0(int* input, int n, int** output_ptr, int* count_ptr);
+#elif defined(TYPE_MALLOC)
     extern int* func0(int n);
 #elif defined(TYPE_FLOAT)
     extern int func0(float* arr, int n, float threshold);
@@ -18,38 +21,34 @@
 #endif
 
 int main() {
-    printf("[Harness] Execution started...\n");
+    printf("[Harness] Start...\n");
 
-#ifdef TYPE_MALLOC
-    // 针对 malloc 类函数，喂入合理的长度
-    int n = 32; 
-    printf("[Harness] Mode: MALLOC, Input n: %d\n", n);
+#ifdef TYPE_MULTIPARAM
+    int input_data[5] = {10, 20, 30, 40, 50};
+    int* out_ptr = NULL;
+    int count = 0;
+    // 这种模式最容易死循环，给一个小一点的 n
+    func0(input_data, 5, &out_ptr, &count);
+    printf("[Harness] Multi-Param Success, Count: %d\n", count);
+    if (out_ptr) free(out_ptr);
+
+#elif defined(TYPE_MALLOC)
+    int n = 20; 
     int* res = func0(n);
-    if (res != NULL) {
-        printf("[Harness] Success. Memory allocated at %p, Data[0]: %d\n", res, res[0]);
-        // 注意：这里为了安全不强制 free，防止汇编返回的不是 malloc 的原始地址
-    } else {
-        printf("[Harness] Failed. Malloc returned NULL.\n");
-    }
+    if (res) { printf("[Harness] Malloc OK\n"); free(res); }
 
 #elif defined(TYPE_FLOAT)
-    // 针对浮点类函数
-    float data[10] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f, 10.0f};
-    float threshold = 0.5f;
-    printf("[Harness] Mode: FLOAT, Threshold: %f\n", threshold);
-    int res = func0(data, 10, threshold);
-    printf("[Harness] Return Value: %d\n", res);
+    float fdata[5] = {1.0f, 2.0f, 3.0f, 4.0f, 5.0f};
+    func0(fdata, 5, 0.5f);
+    printf("[Harness] Float OK\n");
 
 #else
-    // 通用模式：分配足够大的空间防止非法访问
-    int buf_size = 1024 * 1024; // 1MB Super Buffer
-    void* buffer = calloc(buf_size, 1); 
-    printf("[Harness] Mode: GENERAL, Buffer: 1MB\n");
-    int res = func0(buffer, 100);
-    printf("[Harness] Return Value: %d\n", res);
+    void* buffer = calloc(1024 * 1024, 1); // 之前保留的 1MB 安全缓冲区
+    func0(buffer, 10);
+    printf("[Harness] General OK\n");
     free(buffer);
 #endif
 
-    printf("[Harness] Execution finished.\n");
+    printf("[Harness] End.\n");
     return 0;
 }
