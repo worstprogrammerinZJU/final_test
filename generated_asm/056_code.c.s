@@ -36,12 +36,12 @@ LBB0_2:
 	tbnz	w8, #0, LBB0_4
 	b	LBB0_3
 LBB0_3:
-	ldur	x8, [x29, #-24]
-	ldursw	x9, [x29, #-28]
-	mov	x10, x9
-	subs	w10, w10, #1
-	stur	w10, [x29, #-28]
-	add	x9, x8, x9
+	ldur	x9, [x29, #-24]
+	ldursw	x10, [x29, #-28]
+	mov	x8, x10
+	subs	w8, w8, #1
+	stur	w8, [x29, #-28]
+	add	x9, x9, x10
 	mov	w8, #48
 	strb	w8, [x9]
 	b	LBB0_8
@@ -55,45 +55,40 @@ LBB0_5:                                 ; =>This Inner Loop Header: Depth=1
 	b	LBB0_6
 LBB0_6:                                 ;   in Loop: Header=BB0_5 Depth=1
 	ldur	w8, [x29, #-12]
-	mov	w9, #2
-	sdiv	w10, w8, w9
-	mul	w10, w10, w9
-	subs	w8, w8, w10
+	mov	w10, #2
+	sdiv	w9, w8, w10
+	mul	w9, w9, w10
+	subs	w8, w8, w9
 	add	w8, w8, #48
-	ldur	x10, [x29, #-24]
+	ldur	x9, [x29, #-24]
 	ldursw	x11, [x29, #-28]
-	mov	x12, x11
-	subs	w12, w12, #1
-	stur	w12, [x29, #-28]
-	strb	w8, [x10, x11]
+	subs	x11, x11, #1
+	stur	w11, [x29, #-28]
+	strb	w8, [x9, x11]
 	ldur	w8, [x29, #-12]
-	sdiv	w8, w8, w9
+	sdiv	w8, w8, w10
 	stur	w8, [x29, #-12]
 	b	LBB0_5
 LBB0_7:
 	b	LBB0_8
 LBB0_8:
-	ldur	x8, [x29, #-24]
-	ldursw	x9, [x29, #-28]
-	mov	x10, x9
-	subs	w10, w10, #1
+	ldur	x9, [x29, #-24]
+	ldursw	x10, [x29, #-28]
+	mov	x8, x10
+	subs	w8, w8, #1
+	stur	w8, [x29, #-28]
+	mov	x8, #98
+	strb	w8, [x9, x10]
+	ldur	x9, [x29, #-24]
+	ldursw	x10, [x29, #-28]
+	subs	x10, x10, #1
 	stur	w10, [x29, #-28]
-	add	x9, x8, x9
-	mov	w8, #98
-	strb	w8, [x9]
-	ldur	x8, [x29, #-24]
-	ldursw	x9, [x29, #-28]
-	mov	x10, x9
-	subs	w10, w10, #1
-	stur	w10, [x29, #-28]
-	add	x9, x8, x9
-	mov	w8, #100
-	strb	w8, [x9]
+	mov	x10, #100
+	strb	w8, [x9, x10]
 	ldur	w8, [x29, #-28]
 	add	w8, w8, #1
 	str	w8, [sp, #32]
 	ldr	w9, [sp, #32]
-	mov	w8, #62
 	subs	w8, w8, w9
 	str	w8, [sp, #28]
 	ldr	w8, [sp, #28]

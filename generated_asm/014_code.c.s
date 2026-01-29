@@ -43,9 +43,8 @@ LBB0_3:
 	add	w9, w8, #1
                                         ; implicit-def: $x8
 	mov	x8, x9
-	sxtw	x9, w8
-	mov	x8, #1
-	mul	x0, x8, x9
+	sxtw	x8, w8
+	lsr	x0, x8, #0
 	bl	_malloc
 	str	x0, [sp, #16]
 	ldr	x8, [sp, #16]

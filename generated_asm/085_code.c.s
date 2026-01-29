@@ -99,41 +99,41 @@ LBB0_12:                                ;   in Loop: Header=BB0_11 Depth=1
 LBB0_13:                                ;   in Loop: Header=BB0_11 Depth=1
 	ldr	x8, [sp, #40]
 	ldrsw	x9, [sp, #8]
-	mov	x10, x9
-	add	w10, w10, #1
-	str	w10, [sp, #8]
-	ldr	w8, [x8, x9, lsl #2]
+	lsl	x9, x9, #2
+	ldr	w8, [x8, x9]
 	ldr	x9, [sp, #24]
 	ldrsw	x10, [sp]
-	mov	x11, x10
-	add	w11, w11, #1
-	str	w11, [sp]
+	add	w10, w10, #1
+	str	w10, [sp]
 	str	w8, [x9, x10, lsl #2]
 	b	LBB0_15
 LBB0_14:                                ;   in Loop: Header=BB0_11 Depth=1
 	ldr	x8, [sp, #40]
 	ldrsw	x9, [sp, #8]
-	mov	x10, x9
-	add	w10, w10, #1
-	str	w10, [sp, #8]
-	ldr	w8, [x8, x9, lsl #2]
+	lsl	x9, x9, #2
+	ldr	w8, [x8, x9]
 	ldr	x9, [sp, #24]
 	ldrsw	x10, [sp]
-	mov	x11, x10
-	add	w11, w11, #1
-	str	w11, [sp]
+	add	w10, w10, #1
+	str	w10, [sp]
 	str	w8, [x9, x10, lsl #2]
 	ldr	x8, [sp, #40]
 	ldrsw	x9, [sp, #4]
-	mov	x10, x9
-	subs	w10, w10, #1
-	str	w10, [sp, #4]
-	ldr	w8, [x8, x9, lsl #2]
+	lsl	x9, x9, #2
+	ldr	w8, [x8, x9]
 	ldr	x9, [sp, #24]
 	ldrsw	x10, [sp]
-	mov	x11, x10
-	add	w11, w11, #1
-	str	w11, [sp]
+	add	w10, w10, #1
+	str	w10, [sp]
+	str	w8, [x9, x10, lsl #2]
+	ldr	x8, [sp, #40]
+	ldrsw	x9, [sp]
+	lsl	x9, x9, #2
+	ldr	w8, [x8, x9]
+	ldr	x9, [sp, #24]
+	ldrsw	x10, [sp]
+	add	w10, w10, #1
+	str	w10, [sp]
 	str	w8, [x9, x10, lsl #2]
 	b	LBB0_15
 LBB0_15:                                ;   in Loop: Header=BB0_11 Depth=1

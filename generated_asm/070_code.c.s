@@ -20,7 +20,7 @@ _func0:                                 ; @func0
 	str	wzr, [sp, #16]
 	str	wzr, [sp, #12]
 	str	wzr, [sp, #8]
-	str	wzr, [sp, #12]
+	str	wzr, [sp, #8]
 	b	LBB0_1
 LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
 	ldur	x8, [x29, #-8]
@@ -81,7 +81,7 @@ LBB0_8:                                 ;   in Loop: Header=BB0_1 Depth=1
 	sxtw	x8, w8
 	lsl	x1, x8, #2
 	bl	_realloc
-	str	x0, [sp, #24]
+	stur	x0, [x29, #-24]
 	ldr	w8, [sp, #16]
 	ldr	x9, [sp, #24]
 	ldrsw	x10, [sp, #8]

@@ -52,7 +52,8 @@ LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
 	bl	_tolower
 	ldur	x8, [x29, #-8]
 	ldrsw	x9, [sp, #12]
-	strb	w0, [x8, x9]
+	add	x8, x8, x9
+	strb	w0, [x8]
 	b	LBB0_8
 LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	x8, [x29, #-8]
@@ -70,7 +71,8 @@ LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
 	bl	_toupper
 	ldur	x8, [x29, #-8]
 	ldrsw	x9, [sp, #12]
-	strb	w0, [x8, x9]
+	add	x8, x8, x9
+	strb	w0, [x8]
 	b	LBB0_7
 LBB0_7:                                 ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_8
@@ -103,7 +105,9 @@ LBB0_14:                                ; =>This Inner Loop Header: Depth=1
 	ldr	w9, [sp, #16]
 	mov	w10, #2
 	sdiv	w9, w9, w10
+	mul	w9, w9, w10
 	subs	w8, w8, w9
+	subs	w8, w8, #0
 	cset	w8, ge
 	tbnz	w8, #0, LBB0_17
 	b	LBB0_15
@@ -128,9 +132,9 @@ LBB0_15:                                ;   in Loop: Header=BB0_14 Depth=1
 	ldur	x9, [x29, #-8]
 	ldr	w10, [sp, #16]
 	ldr	w11, [sp, #8]
-	subs	w10, w10, w11
-	subs	w10, w10, #1
-	add	x9, x9, w10, sxtw
+	subs	w11, w11, w11
+	subs	w11, w11, #1
+	add	x9, x9, w11, sxtw
 	strb	w8, [x9]
 	b	LBB0_16
 LBB0_16:                                ;   in Loop: Header=BB0_14 Depth=1

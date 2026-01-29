@@ -16,7 +16,7 @@ _func0:                                 ; @func0
 	adrp	x8, l_.str@PAGE
 	add	x8, x8, l_.str@PAGEOFF
 	stur	x8, [x29, #-16]
-	stur	wzr, [x29, #-20]
+	str	wzr, [sp, #28]
 	str	wzr, [sp, #24]
 	b	LBB0_1
 LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
@@ -39,7 +39,7 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	x0, [x29, #-8]
 	bl	_strlen
 	ldr	x8, [sp, #8]                    ; 8-byte Folded Reload
-	subs	x8, x8, x0
+	subs	x8, x8, x0, lsl #1
 	cset	w8, lo
 	str	w8, [sp, #20]                   ; 4-byte Folded Spill
 	b	LBB0_3
@@ -59,9 +59,9 @@ LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_5
 LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
-	ldur	w8, [x29, #-20]
+	ldr	w8, [sp, #28]
 	add	w8, w8, #1
-	stur	w8, [x29, #-20]
+	str	w8, [sp, #28]
 	b	LBB0_6
 LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_7
@@ -71,7 +71,7 @@ LBB0_7:                                 ;   in Loop: Header=BB0_1 Depth=1
 	str	w8, [sp, #24]
 	b	LBB0_1
 LBB0_8:
-	ldur	w0, [x29, #-20]
+	ldr	w0, [sp, #28]
 	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
 	add	sp, sp, #64
 	ret

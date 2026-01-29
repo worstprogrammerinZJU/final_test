@@ -33,10 +33,7 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	str	x8, [x9]
 	mov	x0, #0
 	mov	x1, #0
-	mov	w2, #0
-	mov	x3, #-1
-	adrp	x4, l_.str@PAGE
-	add	x4, x4, l_.str@PAGEOFF
+	mov	x2, #0
 	bl	___snprintf_chk
 	ldur	w8, [x29, #-16]
 	add	w8, w8, w0
@@ -64,7 +61,9 @@ LBB0_6:
 	ldr	x8, [sp, #32]
 	str	x8, [sp, #24]
 	ldr	x0, [sp, #24]
-	mov	w1, #0
+	mov	x8, sp
+	str	x8, [x8]
+	mov	x1, #0
 	mov	x2, #-1
 	adrp	x3, l_.str.1@PAGE
 	add	x3, x3, l_.str.1@PAGEOFF
@@ -89,7 +88,7 @@ LBB0_8:                                 ;   in Loop: Header=BB0_7 Depth=1
 	mov	x8, x9
 	mov	x9, sp
 	str	x8, [x9]
-	mov	w1, #0
+	mov	x1, #0
 	mov	x2, #-1
 	adrp	x3, l_.str@PAGE
 	add	x3, x3, l_.str@PAGEOFF

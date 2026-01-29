@@ -109,17 +109,15 @@ LBB0_18:                                ; =>This Inner Loop Header: Depth=1
 	cset	w8, le
 	tbnz	w8, #0, LBB0_20
 	b	LBB0_19
-LBB0_19:                                ;   in Loop: Header=BB0_18 Depth=1
+LBB0_19:                                ;   in Loop: Header=BB0_1 Depth=1
 	ldr	w8, [sp, #32]
-	mov	w9, #10
-	sdiv	w10, w8, w9
-	mul	w10, w10, w9
-	subs	w10, w8, w10
-	ldr	w8, [sp, #28]
-	add	w8, w8, w10
-	str	w8, [sp, #28]
+	mov	w10, #10
+	sdiv	w8, w8, w10
+	ldr	w9, [sp, #28]
+	add	w9, w9, w8
+	str	w9, [sp, #28]
 	ldr	w8, [sp, #32]
-	sdiv	w8, w8, w9
+	sdiv	w8, w8, w10
 	str	w8, [sp, #32]
 	b	LBB0_18
 LBB0_20:

@@ -32,26 +32,26 @@ LBB0_1:
 LBB0_2:
 	ldur	x8, [x29, #-16]
 	ldrb	w8, [x8]
-	strb	w8, [sp, #19]
-	ldrsb	w8, [sp, #19]
+	strb	w8, [sp, #20]
+	ldrsb	w8, [sp, #20]
 	subs	w8, w8, #65
 	cset	w8, lt
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_3
 LBB0_3:
-	ldrsb	w8, [sp, #19]
+	ldrsb	w8, [sp, #20]
 	subs	w8, w8, #90
 	cset	w8, le
 	tbnz	w8, #0, LBB0_5
 	b	LBB0_4
 LBB0_4:
-	ldrsb	w8, [sp, #19]
+	ldrsb	w8, [sp, #20]
 	subs	w8, w8, #97
 	cset	w8, lt
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_5
 LBB0_5:
-	ldrsb	w8, [sp, #19]
+	ldrsb	w8, [sp, #20]
 	subs	w8, w8, #122
 	cset	w8, le
 	tbnz	w8, #0, LBB0_7
@@ -99,35 +99,35 @@ LBB0_10:
 	stur	x8, [x29, #-8]
 	b	LBB0_24
 LBB0_11:
-	str	wzr, [sp, #4]
+	ldur	w8, [x29, #-4]
+	add	w8, w8, #1
+	stur	w8, [x29, #-20]
 	b	LBB0_12
 LBB0_12:                                ; =>This Inner Loop Header: Depth=1
-	ldr	w8, [sp, #4]
+	ldur	w8, [x29, #-4]
 	ldr	w9, [sp, #20]
 	subs	w8, w8, w9
 	cset	w8, ge
 	tbnz	w8, #0, LBB0_20
 	b	LBB0_13
 LBB0_13:                                ;   in Loop: Header=BB0_12 Depth=1
+	ldr	w8, [sp, #24]
+	subs	w8, w8, #1
+	cset	w8, lt
+	tbnz	w8, #0, LBB0_23
+	b	LBB0_14
+LBB0_14:                                ;   in Loop: Header=BB0_12 Depth=1
 	ldur	x8, [x29, #-16]
 	ldrsw	x9, [sp, #4]
 	ldrsb	w8, [x8, x9]
 	subs	w8, w8, #48
 	cset	w8, lt
 	tbnz	w8, #0, LBB0_16
-	b	LBB0_14
-LBB0_14:                                ;   in Loop: Header=BB0_12 Depth=1
-	ldur	x8, [x29, #-16]
-	ldrsw	x9, [sp, #4]
-	ldrsb	w8, [x8, x9]
-	subs	w8, w8, #57
-	cset	w8, gt
-	tbnz	w8, #0, LBB0_16
 	b	LBB0_15
 LBB0_15:                                ;   in Loop: Header=BB0_12 Depth=1
-	ldur	w8, [x29, #-20]
+	ldr	w8, [sp, #20]
 	add	w8, w8, #1
-	stur	w8, [x29, #-20]
+	str	w8, [sp, #20]
 	b	LBB0_16
 LBB0_16:                                ;   in Loop: Header=BB0_12 Depth=1
 	ldur	x8, [x29, #-16]
@@ -160,18 +160,13 @@ LBB0_21:
 	subs	w8, w8, #1
 	cset	w8, eq
 	tbnz	w8, #0, LBB0_23
-	b	LBB0_22
-LBB0_22:
-	adrp	x8, l_.str@PAGE
-	add	x8, x8, l_.str@PAGEOFF
-	stur	x8, [x29, #-8]
 	b	LBB0_24
-LBB0_23:
+LBB0_22:
 	adrp	x8, l_.str.4@PAGE
 	add	x8, x8, l_.str.4@PAGEOFF
 	stur	x8, [x29, #-8]
 	b	LBB0_24
-LBB0_24:
+LBB0_23:
 	ldur	x0, [x29, #-8]
 	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
 	add	sp, sp, #64

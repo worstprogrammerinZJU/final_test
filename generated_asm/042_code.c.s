@@ -61,16 +61,14 @@ LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	w8, [x29, #-4]
 	ldur	x9, [x29, #-16]
 	ldr	x12, [sp, #24]
-	ldrsw	x10, [x12]
-	mov	x11, x10
-	add	w11, w11, #1
-	str	w11, [x12]
-	str	w8, [x9, x10, lsl #2]
+	ldrsw	x13, [x12]
+	mov	x14, x13
+	add	w14, w14, #1
+	str	w14, [x12]
+	str	w8, [x9, x13, lsl #2]
 	ldur	w8, [x29, #-4]
-	mov	w9, #3
-	mul	w8, w8, w9
-	add	w8, w8, #1
-	stur	w8, [x29, #-4]
+	subs	w8, w8, #1
+	str	w8, [sp, #8]
 	b	LBB0_7
 LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	w8, [x29, #-4]

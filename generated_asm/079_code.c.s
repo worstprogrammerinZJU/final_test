@@ -71,7 +71,7 @@ LBB0_9:                                 ;   in Loop: Header=BB0_7 Depth=1
 	ldr	w8, [sp, #8]
 	add	w8, w8, #1
 	str	w8, [sp, #8]
-	b	LBB0_10
+	b	LBB0_11
 LBB0_10:                                ;   in Loop: Header=BB0_7 Depth=1
 	b	LBB0_11
 LBB0_11:                                ;   in Loop: Header=BB0_7 Depth=1

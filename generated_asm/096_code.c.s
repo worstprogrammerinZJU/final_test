@@ -68,13 +68,10 @@ LBB0_7:                                 ;   in Loop: Header=BB0_3 Depth=2
 	b	LBB0_3
 LBB0_8:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldrb	w8, [sp, #27]
-	tbnz	w8, #0, LBB0_10
+	tbz	w8, #0, LBB0_10
 	b	LBB0_9
 LBB0_9:
-	mov	w8, #0
-	and	w8, w8, #0x1
-	and	w8, w8, #0x1
-	sturb	w8, [x29, #-1]
+	sturb	wzr, [x29, #-1]
 	b	LBB0_25
 LBB0_10:                                ;   in Loop: Header=BB0_1 Depth=1
 	b	LBB0_11
@@ -106,7 +103,7 @@ LBB0_15:                                ;   Parent Loop BB0_13 Depth=1
 	cset	w8, ge
 	tbnz	w8, #0, LBB0_20
 	b	LBB0_16
-LBB0_16:                                ;   in Loop: Header=BB0_15 Depth=2
+LBB0_16:                                ;   in Loop: Header=BB0_13 Depth=2
 	ldur	x8, [x29, #-24]
 	ldrsw	x9, [sp, #16]
 	ldrsb	w8, [x8, x9]
@@ -121,38 +118,19 @@ LBB0_17:                                ;   in Loop: Header=BB0_13 Depth=1
 	mov	w8, #1
 	strb	w8, [sp, #15]
 	b	LBB0_20
-LBB0_18:                                ;   in Loop: Header=BB0_15 Depth=2
+LBB0_18:                                ;   in Loop: Header=BB0_13 Depth=2
 	b	LBB0_19
-LBB0_19:                                ;   in Loop: Header=BB0_15 Depth=2
-	ldr	w8, [sp, #8]
-	add	w8, w8, #1
-	str	w8, [sp, #8]
-	b	LBB0_15
-LBB0_20:                                ;   in Loop: Header=BB0_13 Depth=1
-	ldrb	w8, [sp, #15]
-	tbnz	w8, #0, LBB0_22
-	b	LBB0_21
-LBB0_21:
-	mov	w8, #0
-	and	w8, w8, #0x1
-	and	w8, w8, #0x1
-	sturb	w8, [x29, #-1]
-	b	LBB0_25
-LBB0_22:                                ;   in Loop: Header=BB0_13 Depth=1
-	b	LBB0_23
-LBB0_23:                                ;   in Loop: Header=BB0_13 Depth=1
+LBB0_19:                                ;   in Loop: Header=BB0_13 Depth=2
 	ldr	w8, [sp, #16]
 	add	w8, w8, #1
 	str	w8, [sp, #16]
 	b	LBB0_13
-LBB0_24:
+LBB0_20:
 	mov	w8, #1
-	and	w8, w8, #0x1
-	and	w8, w8, #0x1
-	sturb	w8, [x29, #-1]
+	strb	w8, [sp, #15]
 	b	LBB0_25
-LBB0_25:
-	ldurb	w8, [x29, #-1]
+LBB0_21:
+	ldrb	w8, [sp, #15]
 	and	w0, w8, #0x1
 	ldp	x29, x30, [sp, #64]             ; 16-byte Folded Reload
 	add	sp, sp, #80

@@ -17,15 +17,17 @@ _func0:                                 ; @func0
 	ldur	x0, [x29, #-16]
 	bl	_strlen
 	mov	x8, x0
-	stur	w8, [x29, #-28]
+	str	w8, [sp, #36]
 	ldur	x0, [x29, #-24]
 	bl	_strlen
 	mov	x8, x0
 	str	w8, [sp, #32]
 	ldr	w9, [sp, #32]
-	mov	x8, #2
-	mul	x8, x8, x9
-	add	x8, x8, #1
+	mov	w8, #2
+	mul	w8, w8, w9
+	add	w9, w8, #1
+                                        ; implicit-def: $x8
+	mov	x8, x9
 	sxtw	x0, w8
 	bl	_malloc
 	str	x0, [sp, #24]
@@ -76,8 +78,6 @@ LBB0_3:
 	ldr	x0, [sp, #24]
 	bl	_free
 	mov	w8, #1
-	and	w8, w8, #0x1
-	and	w8, w8, #0x1
 	sturb	w8, [x29, #-1]
 	b	LBB0_7
 LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
@@ -90,10 +90,7 @@ LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
 LBB0_6:
 	ldr	x0, [sp, #24]
 	bl	_free
-	mov	w8, #0
-	and	w8, w8, #0x1
-	and	w8, w8, #0x1
-	sturb	w8, [x29, #-1]
+	sturb	wzr, [x29, #-1]
 	b	LBB0_7
 LBB0_7:
 	ldurb	w8, [x29, #-1]

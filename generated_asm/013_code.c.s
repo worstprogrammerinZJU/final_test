@@ -15,9 +15,8 @@ _func0:                                 ; @func0
 	stur	x0, [x29, #-8]
 	stur	w1, [x29, #-12]
 	str	x2, [sp, #24]
-	ldursw	x9, [x29, #-12]
-	mov	x8, #4
-	mul	x0, x8, x9
+	ldursw	x8, [x29, #-12]
+	lsl	x0, x8, #2
 	bl	_malloc
 	str	x0, [sp, #16]
 	ldr	x8, [sp, #24]

@@ -44,9 +44,9 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	x0, [sp, #24]
 	bl	_strlen
 	str	x0, [sp, #8]
-	ldr	x0, [sp, #24]
-	ldr	x8, [sp, #8]
-	add	x1, x8, #2
+	ldr	x8, [sp, #24]
+	ldr	x9, [sp, #8]
+	add	x1, x9, #2
 	bl	_realloc
 	str	x0, [sp, #24]
 	ldur	x8, [x29, #-8]
@@ -59,9 +59,8 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	strb	w8, [x9]
 	ldr	x8, [sp, #24]
 	ldr	x9, [sp, #8]
-	add	x9, x9, #1
 	add	x8, x8, x9
-	strb	wzr, [x8]
+	strb	wzr, [x8, #1]
 	ldr	x0, [sp, #24]
 	bl	_strlen
 	add	x0, x0, #1
@@ -71,7 +70,8 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	str	x0, [x8, x9, lsl #3]
 	ldr	x8, [sp, #32]
 	ldrsw	x9, [sp, #20]
-	ldr	x0, [x8, x9, lsl #3]
+	lsl	x9, x9, #3
+	ldr	x0, [x8, x9]
 	ldr	x1, [sp, #24]
 	mov	x2, #-1
 	bl	___strcpy_chk

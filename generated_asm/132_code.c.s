@@ -16,7 +16,7 @@ _func0:                                 ; @func0
 	b	LBB0_1
 LBB0_1:
 	mov	w8, #-1
-	str	w8, [sp, #28]
+	str	w8, [sp, #12]
 	b	LBB0_15
 LBB0_2:
 	mov	w8, #2147483647
@@ -90,14 +90,14 @@ LBB0_12:
 	b	LBB0_13
 LBB0_13:
 	mov	w8, #-1
-	str	w8, [sp, #28]
+	str	w8, [sp, #12]
 	b	LBB0_15
 LBB0_14:
 	ldr	w8, [sp, #4]
-	str	w8, [sp, #28]
+	str	w8, [sp, #12]
 	b	LBB0_15
 LBB0_15:
-	ldr	w0, [sp, #28]
+	ldr	w0, [sp, #12]
 	add	sp, sp, #32
 	ret
 	.cfi_endproc

@@ -89,39 +89,16 @@ LBB0_9:                                 ;   in Loop: Header=BB0_3 Depth=2
 LBB0_10:                                ;   in Loop: Header=BB0_3 Depth=2
 	b	LBB0_11
 LBB0_11:                                ;   in Loop: Header=BB0_3 Depth=2
-	ldr	w8, [sp, #24]
-	add	w8, w8, #1
-	str	w8, [sp, #24]
-	b	LBB0_3
-LBB0_12:                                ;   in Loop: Header=BB0_1 Depth=1
-	ldr	w8, [sp, #28]
-	ldur	w9, [x29, #-36]
-	subs	w8, w8, w9
-	cset	w8, le
-	tbnz	w8, #0, LBB0_14
-	b	LBB0_13
-LBB0_13:                                ;   in Loop: Header=BB0_1 Depth=1
-	ldr	w8, [sp, #28]
-	stur	w8, [x29, #-36]
-	ldr	x8, [sp, #32]
-	str	x8, [sp, #48]
-	b	LBB0_14
-LBB0_14:                                ;   in Loop: Header=BB0_1 Depth=1
-	b	LBB0_15
-LBB0_15:                                ;   in Loop: Header=BB0_1 Depth=1
 	ldr	w8, [sp, #44]
 	add	w8, w8, #1
 	str	w8, [sp, #44]
-	b	LBB0_1
-LBB0_16:
-	ldur	x0, [x29, #-32]
-	ldur	x10, [x29, #-8]
-	ldr	x8, [sp, #48]
-	mov	x9, sp
-	str	x10, [x9]
-	str	x8, [x9, #8]
-	mov	w1, #0
-	mov	x2, #-1
+	b	LBB0_3
+LBB0_12:                                ;   in Loop: Header=BB0_1 Depth=1
+	ldr	w8, [sp, #28]
+	ldur	x8, [x29, #-32]
+	ldr	x9, [sp, #48]
+	mov	x10, sp
+	str	x8, [x10]
 	adrp	x3, l_.str@PAGE
 	add	x3, x3, l_.str@PAGEOFF
 	bl	___sprintf_chk
