@@ -121,13 +121,13 @@ def run_evaluation():
             compile_success_count += 1 # 编译成功计数
             try:
                 # 尝试运行
-                res = subprocess.run("./tester", capture_output=True, text=True, timeout=2)
-                if "SUCCESS" in res.stdout:
-                    print(f"Task {i:<3} ({filename:<10}): [OK]")
-                    passed_count += 1
-                else:
-                    print(f"Task {i:<3} ({filename:<10}): [FAIL] at Case {res.returncode}")
-                    fail_count += 1
+                if res.returncode == 0 and res.stdout == "SUCCESS\n":
+                print(f"Task {i:<3} ({filename:<10}): [OK]")
+                passed_count += 1
+            else:
+                # 根据 returncode 区分是断言失败、崩溃还是其他错误
+                print(f"Task {i:<3} ({filename:<10}): [FAIL] (Exit Code: {res.returncode})")
+                fail_count += 1
             except subprocess.TimeoutExpired:
                 print(f"Task {i:<3} ({filename:<10}): [TIMEOUT]")
                 crash_count += 1
