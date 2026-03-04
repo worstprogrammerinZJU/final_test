@@ -122,8 +122,8 @@ def run_evaluation():
             try:
                 # 尝试运行
                 if res.returncode == 0 and res.stdout == "SUCCESS\n":
-                print(f"Task {i:<3} ({filename:<10}): [OK]")
-                passed_count += 1
+                    print(f"Task {i:<3} ({filename:<10}): [OK]")
+                    passed_count += 1
             else:
                 # 根据 returncode 区分是断言失败、崩溃还是其他错误
                 print(f"Task {i:<3} ({filename:<10}): [FAIL] (Exit Code: {res.returncode})")
