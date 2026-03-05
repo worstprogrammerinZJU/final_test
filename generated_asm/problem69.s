@@ -89,4 +89,6 @@ LBB0_11:
 	ldr	x0, [sp, #40]
 	add	sp, sp, #48
 	ret
-	.cfi
+	.cfi_endproc
+                                        ; -- End function
+.subsections_via_symbols

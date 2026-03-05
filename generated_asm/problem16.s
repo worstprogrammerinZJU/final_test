@@ -31,6 +31,10 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	mov	x8, x9
 	mov	x9, sp
 	str	x8, [x9]
+	mov	x1, #0
+	mov	x0, x1
+	mov	w2, #0
+	mov	x3, #-1
 	adrp	x4, l_.str@PAGE
 	add	x4, x4, l_.str@PAGEOFF
 	bl	___snprintf_chk
@@ -72,3 +76,49 @@ LBB0_6:
 	str	w8, [sp, #20]
 	b	LBB0_7
 LBB0_7:                                 ; =>This Inner Loop Header: Depth=1
+	ldr	w8, [sp, #20]
+	ldur	w9, [x29, #-12]
+	subs	w8, w8, w9
+	cset	w8, gt
+	tbnz	w8, #0, LBB0_10
+	b	LBB0_8
+LBB0_8:                                 ;   in Loop: Header=BB0_7 Depth=1
+	ldr	x0, [sp, #24]
+	ldr	w9, [sp, #20]
+                                        ; implicit-def: $x8
+	mov	x8, x9
+	mov	x9, sp
+	str	x8, [x9]
+	mov	w1, #0
+	mov	x2, #-1
+	adrp	x3, l_.str@PAGE
+	add	x3, x3, l_.str@PAGEOFF
+	bl	___sprintf_chk
+	ldr	x8, [sp, #24]
+	add	x8, x8, w0, sxtw
+	str	x8, [sp, #24]
+	b	LBB0_9
+LBB0_9:                                 ;   in Loop: Header=BB0_7 Depth=1
+	ldr	w8, [sp, #20]
+	add	w8, w8, #1
+	str	w8, [sp, #20]
+	b	LBB0_7
+LBB0_10:
+	ldr	x8, [sp, #32]
+	stur	x8, [x29, #-8]
+	b	LBB0_11
+LBB0_11:
+	ldur	x0, [x29, #-8]
+	ldp	x29, x30, [sp, #64]             ; 16-byte Folded Reload
+	add	sp, sp, #80
+	ret
+	.cfi_endproc
+                                        ; -- End function
+	.section	__TEXT,__cstring,cstring_literals
+l_.str:                                 ; @.str
+	.asciz	" %d"
+
+l_.str.1:                               ; @.str.1
+	.asciz	"0"
+
+.subsections_via_symbols

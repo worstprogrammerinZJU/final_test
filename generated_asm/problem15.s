@@ -18,8 +18,9 @@ _func0:                                 ; @func0
 	bl	_strlen
 	mov	x8, x0
 	stur	w8, [x29, #-20]
-	ldursw	x8, [x29, #-20]
-	lsl	x0, x8, #3
+	ldursw	x9, [x29, #-20]
+	mov	x8, #8
+	mul	x0, x8, x9
 	bl	_malloc
 	str	x0, [sp, #32]
 	ldur	w8, [x29, #-20]
@@ -44,9 +45,9 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldr	x0, [sp, #24]
 	bl	_strlen
 	str	x0, [sp, #8]
-	ldr	x8, [sp, #24]
-	ldr	x9, [sp, #8]
-	add	x1, x9, #2
+	ldr	x0, [sp, #24]
+	ldr	x8, [sp, #8]
+	add	x1, x8, #2
 	bl	_realloc
 	str	x0, [sp, #24]
 	ldur	x8, [x29, #-8]
@@ -59,9 +60,9 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 	strb	w8, [x9]
 	ldr	x8, [sp, #24]
 	ldr	x9, [sp, #8]
+	add	x9, x9, #1
 	add	x8, x8, x9
-	ldrb	w8, [x8, #1]
-	strb	w8, [x9, #1]
+	strb	wzr, [x8]
 	ldr	x0, [sp, #24]
 	bl	_strlen
 	add	x0, x0, #1
@@ -86,3 +87,11 @@ LBB0_4:
 	bl	_free
 	ldur	w8, [x29, #-20]
 	ldur	x9, [x29, #-16]
+	str	w8, [x9]
+	ldr	x0, [sp, #32]
+	ldp	x29, x30, [sp, #64]             ; 16-byte Folded Reload
+	add	sp, sp, #80
+	ret
+	.cfi_endproc
+                                        ; -- End function
+.subsections_via_symbols

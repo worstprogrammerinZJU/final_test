@@ -23,7 +23,7 @@ _func0:                                 ; @func0
 	bl	_calloc
 	str	x0, [sp, #8]
 	mov	w8, #-1
-	str	w8, [sp, #4]                    ; 4-byte Folded Spill
+	str	w8, [sp, #4]
 	str	wzr, [sp]
 	b	LBB0_1
 LBB0_1:                                 ; =>This Inner Loop Header: Depth=1
@@ -57,9 +57,8 @@ LBB0_2:                                 ;   in Loop: Header=BB0_1 Depth=1
 LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	x8, [x29, #-8]
 	ldrsw	x9, [sp]
-	lsl	x9, x9, #2
-	ldr	w8, [x8, x9]
-	ldr	w9, [sp, #4]                    ; 4-byte Folded Reload
+	ldr	w8, [x8, x9, lsl #2]
+	ldr	w9, [sp, #4]
 	subs	w8, w8, w9
 	cset	w8, le
 	tbnz	w8, #0, LBB0_5
@@ -67,8 +66,7 @@ LBB0_3:                                 ;   in Loop: Header=BB0_1 Depth=1
 LBB0_4:                                 ;   in Loop: Header=BB0_1 Depth=1
 	ldur	x8, [x29, #-8]
 	ldrsw	x9, [sp]
-	lsl	x9, x9, #2
-	ldr	w8, [x8, x9]
+	ldr	w8, [x8, x9, lsl #2]
 	str	w8, [sp, #4]
 	b	LBB0_5
 LBB0_5:                                 ;   in Loop: Header=BB0_1 Depth=1
@@ -81,7 +79,7 @@ LBB0_6:                                 ;   in Loop: Header=BB0_1 Depth=1
 LBB0_7:
 	ldr	x0, [sp, #8]
 	bl	_free
-	ldr	w0, [sp, #4]                    ; 4-byte Folded Reload
+	ldr	w0, [sp, #4]
 	ldp	x29, x30, [sp, #32]             ; 16-byte Folded Reload
 	add	sp, sp, #48
 	ret

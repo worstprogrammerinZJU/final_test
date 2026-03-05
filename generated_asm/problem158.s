@@ -15,31 +15,70 @@ _func0:                                 ; @func0
 	str	s0, [sp, #8]
 	str	s1, [sp, #4]
 	str	s2, [sp]
+	ldr	s0, [sp, #8]
 	ldr	s1, [sp, #8]
-	ldr	s2, [sp, #8]
-	ldr	s0, [sp, #4]
+	ldr	s2, [sp, #4]
 	ldr	s3, [sp, #4]
-	fmul	s0, s0, s3
-	fmadd	s1, s1, s2, s0
+	fmul	s2, s2, s3
+	fmadd	s2, s0, s1, s2
 	ldr	s0, [sp]
-	ldr	s2, [sp]
-	fnmsub	s0, s0, s1, s2
+	ldr	s1, [sp]
+	fmsub	s0, s0, s1, s2
 	fcvt	d0, s0
+	fabs	d0, d0
 	adrp	x8, lCPI0_0@PAGE
 	ldr	d1, [x8, lCPI0_0@PAGEOFF]
 	fcmp	d0, d1
-	cset	w8, gt
+	cset	w8, mi
 	tbnz	w8, #0, LBB0_3
 	b	LBB0_1
 LBB0_1:
+	ldr	s0, [sp, #8]
 	ldr	s1, [sp, #8]
-	ldr	s2, [sp, #8]
-	ldr	s0, [sp]
+	ldr	s2, [sp]
 	ldr	s3, [sp]
-	fmul	s0, s0, s3
-	fmadd	s1, s1, s2, s0
-	ldr	s2, [sp, #4]
-	ldr	s3, [sp, #4]
-	fnmsub	s0, s0, s1, s3
+	fmul	s2, s2, s3
+	fmadd	s2, s0, s1, s2
+	ldr	s0, [sp, #4]
+	ldr	s1, [sp, #4]
+	fmsub	s0, s0, s1, s2
 	fcvt	d0, s0
+	fabs	d0, d0
 	adrp	x8, lCPI0_0@PAGE
+	ldr	d1, [x8, lCPI0_0@PAGEOFF]
+	fcmp	d0, d1
+	cset	w8, pl
+	tbnz	w8, #0, LBB0_3
+	b	LBB0_2
+LBB0_2:
+	ldr	s0, [sp, #4]
+	ldr	s1, [sp, #4]
+	ldr	s2, [sp]
+	ldr	s3, [sp]
+	fmul	s2, s2, s3
+	fmadd	s2, s0, s1, s2
+	ldr	s0, [sp, #8]
+	ldr	s1, [sp, #8]
+	fmsub	s0, s0, s1, s2
+	fcvt	d0, s0
+	fabs	d0, d0
+	adrp	x8, lCPI0_0@PAGE
+	ldr	d1, [x8, lCPI0_0@PAGEOFF]
+	fcmp	d0, d1
+	cset	w8, pl
+	tbnz	w8, #0, LBB0_4
+	b	LBB0_3
+LBB0_3:
+	mov	w8, #1
+	str	w8, [sp, #12]
+	b	LBB0_5
+LBB0_4:
+	str	wzr, [sp, #12]
+	b	LBB0_5
+LBB0_5:
+	ldr	w0, [sp, #12]
+	add	sp, sp, #16
+	ret
+	.cfi_endproc
+                                        ; -- End function
+.subsections_via_symbols

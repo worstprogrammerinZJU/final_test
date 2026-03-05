@@ -23,7 +23,10 @@ _func0:                                 ; @func0
 	tbnz	w8, #0, LBB0_2
 	b	LBB0_1
 LBB0_1:
-	sturb	wzr, [x29, #-1]
+	mov	w8, #0
+	and	w8, w8, #0x1
+	and	w8, w8, #0x1
+	sturb	w8, [x29, #-1]
 	b	LBB0_9
 LBB0_2:
 	mov	w8, #2
@@ -49,7 +52,10 @@ LBB0_4:                                 ;   in Loop: Header=BB0_3 Depth=1
 	tbnz	w8, #0, LBB0_6
 	b	LBB0_5
 LBB0_5:
-	sturb	wzr, [x29, #-1]
+	mov	w8, #0
+	and	w8, w8, #0x1
+	and	w8, w8, #0x1
+	sturb	w8, [x29, #-1]
 	b	LBB0_9
 LBB0_6:                                 ;   in Loop: Header=BB0_3 Depth=1
 	b	LBB0_7
@@ -59,7 +65,10 @@ LBB0_7:                                 ;   in Loop: Header=BB0_3 Depth=1
 	str	w8, [sp, #8]
 	b	LBB0_3
 LBB0_8:
-	sturb	wzr, [x29, #-1]
+	mov	w8, #1
+	and	w8, w8, #0x1
+	and	w8, w8, #0x1
+	sturb	w8, [x29, #-1]
 	b	LBB0_9
 LBB0_9:
 	ldurb	w8, [x29, #-1]

@@ -90,4 +90,6 @@ LBB0_11:
 	ldp	x29, x30, [sp, #48]             ; 16-byte Folded Reload
 	add	sp, sp, #64
 	ret
-	.c
+	.cfi_endproc
+                                        ; -- End function
+.subsections_via_symbols
