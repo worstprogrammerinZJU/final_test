@@ -1,26 +1,24 @@
 #!/usr/bin/env python3
 """
 直接评测脚本 - 只使用JSONL中的测试用例验证汇编代码
+针对 _func0 函数名
 """
 
 import json
 import os
 import re
 import subprocess
-import sys
-import ast
 import tempfile
-import time
 import csv
 from typing import List, Tuple, Optional, Dict, Any
 
 def extract_test_number(task_id: str) -> int:
-    """从任务ID中提取数字编号，如 HumanEval/0 -> 0"""
+    """从任务ID中提取数字编号"""
     match = re.search(r'/(\d+)$', task_id)
     return int(match.group(1)) if match else -1
 
 def extract_asm_number(filename: str) -> int:
-    """从汇编文件名中提取数字编号，如 problem1.s -> 1"""
+    """从汇编文件名中提取数字编号"""
     match = re.search(r'problem(\d+)\.s$', filename, re.IGNORECASE)
     return int(match.group(1)) if match else -1
 
@@ -49,23 +47,31 @@ def get_asm_function_name(asm_path: str) -> Optional[str]:
 def parse_test_cases_directly(test_code: str) -> List[Tuple[str, str]]:
     """
     直接从测试代码中解析测试用例
-    格式: assert candidate(...) == True/False
+    支持多种格式：
+    1. assert candidate(...) == True/False
+    2. assert has_close_elements(...) == True/False
     """
     test_cases = []
     
-    # 简单粗暴的解析：找到所有 assert candidate(...) == True/False
-    pattern = r'assert candidate\s*\((.*?)\)\s*==\s*(True|False)'
+    # 多种可能的模式
+    patterns = [
+        r'assert candidate\s*\((.*?)\)\s*==\s*(True|False)',
+        r'assert has_close_elements\s*\((.*?)\)\s*==\s*(True|False)',
+        r'assert separate_paren_groups\s*\((.*?)\)\s*==\s*(True|False)',
+    ]
     
     for line in test_code.strip().split('\n'):
         line = line.strip()
         if not line.startswith('assert'):
             continue
-            
-        match = re.search(pattern, line)
-        if match:
-            args = match.group(1)  # 参数部分
-            expected = "1" if match.group(2) == "True" else "0"  # True->1, False->0
-            test_cases.append((args, expected))
+        
+        for pattern in patterns:
+            match = re.search(pattern, line)
+            if match:
+                args = match.group(1)  # 参数部分
+                expected = "1" if match.group(2) == "True" else "0"  # True->1, False->0
+                test_cases.append((args, expected))
+                break
     
     return test_cases
 
@@ -74,43 +80,46 @@ def python_arg_to_c(arg_str: str) -> Dict[str, Any]:
     将Python参数字符串转换为C代码
     处理简单的数组和数字
     """
-    # 尝试解析为Python表达式
-    try:
-        # 解析为Python列表 [1.0, 2.0, ...]
-        if arg_str.strip().startswith('['):
-            # 提取数组元素
-            elements = []
-            # 简单的解析：移除方括号，按逗号分割
-            content = arg_str.strip()[1:-1]  # 移除方括号
-            for part in content.split(','):
-                part = part.strip()
-                if part:
-                    try:
-                        val = float(part)
-                        elements.append(str(val))
-                    except:
-                        elements.append("0.0")
-            
-            if not elements:
-                return {"code": "NULL", "type": "array", "len": 0}
-            
-            return {
-                "code": "{" + ", ".join(elements) + "}",
-                "type": "array", 
-                "len": len(elements)
-            }
-        else:
-            # 尝试解析为数字
-            try:
-                val = float(arg_str)
-                return {"code": str(val), "type": "number"}
-            except:
-                return {"code": "0", "type": "unknown"}
-    except:
-        return {"code": "0", "type": "unknown"}
+    arg_str = arg_str.strip()
+    
+    # 处理数组 [1.0, 2.0, ...]
+    if arg_str.startswith('['):
+        # 移除方括号
+        content = arg_str[1:-1].strip()
+        if not content:
+            return {"code": "NULL", "type": "array", "len": 0}
+        
+        # 按逗号分割元素
+        elements = []
+        for part in content.split(','):
+            part = part.strip()
+            if part:
+                try:
+                    # 尝试解析为浮点数
+                    val = float(part)
+                    elements.append(str(val))
+                except:
+                    elements.append("0.0")
+        
+        if not elements:
+            return {"code": "NULL", "type": "array", "len": 0}
+        
+        return {
+            "code": "{" + ", ".join(elements) + "}",
+            "type": "array", 
+            "len": len(elements)
+        }
+    
+    # 处理数字
+    else:
+        try:
+            val = float(arg_str)
+            return {"code": str(val), "type": "number"}
+        except:
+            return {"code": "0", "type": "unknown"}
 
-def generate_simple_test(asm_func: str, test_cases: List[Tuple[str, str]]) -> Optional[str]:
-    """生成简单的C测试代码"""
+def generate_test_for_func0(test_cases: List[Tuple[str, str]]) -> Optional[str]:
+    """为 _func0 生成测试代码"""
     if not test_cases:
         return None
     
@@ -118,44 +127,58 @@ def generate_simple_test(asm_func: str, test_cases: List[Tuple[str, str]]) -> Op
     
     for i, (args_str, expected) in enumerate(test_cases):
         # 解析参数 - 假设格式: [数组], 阈值
-        parts = [p.strip() for p in args_str.split(',')]
+        # 首先按第一个逗号分割，但要注意数组内部可能有逗号
+        args_str = args_str.strip()
         
-        c_code = []
-        setup = []
+        # 找到数组结束的位置
+        bracket_count = 0
+        split_pos = -1
         
-        # 处理第一个参数（数组）
-        if parts:
-            arr_info = python_arg_to_c(parts[0])
-            if arr_info["type"] == "array":
-                arr_name = f"arr{i}"
-                setup.append(f"    double {arr_name}[] = {arr_info['code']};")
-                c_code.append(f"(uintptr_t){arr_name}")
-                c_code.append(f"(uintptr_t){arr_info['len']}")
-            else:
-                c_code.append(f"(uintptr_t){arr_info['code']}")
-                c_code.append(f"(uintptr_t)0")
+        for pos, char in enumerate(args_str):
+            if char == '[':
+                bracket_count += 1
+            elif char == ']':
+                bracket_count -= 1
+            elif char == ',' and bracket_count == 0:
+                split_pos = pos
+                break
         
-        # 处理第二个参数（阈值）
-        if len(parts) > 1:
-            threshold_info = python_arg_to_c(parts[1])
-            c_code.append(f"(uintptr_t){threshold_info['code']}")
+        if split_pos == -1:
+            # 只有一个参数
+            array_part = args_str
+            threshold_part = "0.0"
         else:
-            c_code.append("(uintptr_t)0")
+            array_part = args_str[:split_pos].strip()
+            threshold_part = args_str[split_pos+1:].strip()
         
-        # 补全到8个参数
-        while len(c_code) < 8:
-            c_code.append("(uintptr_t)0")
+        # 处理数组
+        arr_info = python_arg_to_c(array_part)
+        arr_name = f"arr{i}"
         
-        setup_code = "\n".join(setup)
-        if setup_code:
-            setup_code += "\n"
+        # 处理阈值
+        threshold_info = python_arg_to_c(threshold_part)
         
+        # 生成测试代码块
         test_block = f"""
     // Test {i}
     {{
-{setup_code}    uintptr_t result = {asm_func}({', '.join(c_code)});
-        if (result != (uintptr_t){expected}) {{
-            printf("Test {i} FAIL: expected %lu, got %lu\\n", 
+        double {arr_name}[] = {arr_info['code']};
+        uintptr_t result = _func0(
+            (uintptr_t){arr_name},      // 数组指针
+            (uintptr_t){arr_info['len']}, // 数组长度
+            (uintptr_t){threshold_info['code']}, // 阈值
+            (uintptr_t)0,               // 未使用
+            (uintptr_t)0,               // 未使用
+            (uintptr_t)0,               // 未使用
+            (uintptr_t)0,               // 未使用
+            (uintptr_t)0                // 未使用
+        );
+        
+        printf("Test {i}: ");
+        if (result == (uintptr_t){expected}) {{
+            printf("PASS\\n");
+        }} else {{
+            printf("FAIL (expected %lu, got %lu)\\n", 
                    (uintptr_t){expected}, result);
             failures++;
         }}
@@ -169,7 +192,7 @@ def generate_simple_test(asm_func: str, test_cases: List[Tuple[str, str]]) -> Op
 #include <stdint.h>
 #include <math.h>
 
-extern uintptr_t {asm_func}(
+extern uintptr_t _func0(
     uintptr_t, uintptr_t, uintptr_t, uintptr_t,
     uintptr_t, uintptr_t, uintptr_t, uintptr_t
 );
@@ -177,15 +200,17 @@ extern uintptr_t {asm_func}(
 int main() {{
     int failures = 0;
     
-    printf("Testing {asm_func} with {len(test_cases)} test cases\\n");
+    printf("Testing _func0 with {len(test_cases)} test cases\\n");
+    printf("========================================\\n");
     
 {all_tests}
     
+    printf("\\n========================================\\n");
     if (failures == 0) {{
-        printf("All tests PASSED\\n");
+        printf("✅ All {len(test_cases)} tests PASSED\\n");
         return 0;
     }} else {{
-        printf("%d tests FAILED\\n", failures);
+        printf("❌ {len(test_cases)} tests, {len(test_cases)} passed, %d failed\\n", failures);
         return 1;
     }}
 }}
@@ -216,18 +241,19 @@ def run_single_test(task_num: int, asm_file: str, jsonl_data: Dict[int, Dict]) -
     # 获取测试用例
     task = jsonl_data.get(task_num)
     if not task:
-        print(f"  ❌ No test cases for task {task_num}")
+        print(f"  ❌ No test data for task {task_num}")
         return "no_tests", func_name
     
     test_cases = parse_test_cases_directly(task.get('test', ''))
     if not test_cases:
         print(f"  ❌ Could not parse test cases")
+        print(f"  Test code snippet: {task.get('test', '')[:200]}...")
         return "parse_error", func_name
     
-    print(f"  Test cases: {len(test_cases)}")
+    print(f"  Found {len(test_cases)} test cases")
     
     # 生成测试代码
-    c_code = generate_simple_test(func_name, test_cases)
+    c_code = generate_test_for_func0(test_cases)
     if not c_code:
         print(f"  ❌ Failed to generate test code")
         return "codegen_error", func_name
@@ -244,7 +270,10 @@ def run_single_test(task_num: int, asm_file: str, jsonl_data: Dict[int, Dict]) -
     if result.returncode != 0:
         os.unlink(c_file)
         print(f"  🔨 Compile failed:")
-        print(f"    {result.stderr[:200]}")
+        if result.stderr:
+            for line in result.stderr.split('\n')[:5]:
+                if line.strip():
+                    print(f"    {line}")
         return "compile_error", func_name
     
     os.unlink(c_file)
@@ -258,6 +287,11 @@ def run_single_test(task_num: int, asm_file: str, jsonl_data: Dict[int, Dict]) -
             for line in run_result.stdout.strip().split('\n'):
                 if line:
                     print(f"  {line}")
+        
+        if run_result.stderr:
+            for line in run_result.stderr.strip().split('\n'):
+                if line:
+                    print(f"  [stderr] {line}")
         
         if run_result.returncode == 0:
             print(f"  ✅ PASS")
@@ -274,11 +308,14 @@ def run_single_test(task_num: int, asm_file: str, jsonl_data: Dict[int, Dict]) -
         return "crash", func_name
     finally:
         if os.path.exists("./tester"):
-            os.remove("./tester")
+            try:
+                os.remove("./tester")
+            except:
+                pass
 
 def main():
     """主函数"""
-    print("🚀 Simple Assembly Evaluator")
+    print("🚀 Simple Assembly Evaluator for _func0")
     print("="*60)
     
     # 加载JSONL
@@ -290,14 +327,15 @@ def main():
     # 加载所有任务
     tasks_by_number = {}
     with open(jsonl_file, 'r', encoding='utf-8') as f:
-        for line in f:
+        for line_num, line in enumerate(f):
             try:
                 task = json.loads(line)
                 task_id = task.get('task_id', '')
                 task_num = extract_test_number(task_id)
                 if task_num >= 0:
                     tasks_by_number[task_num] = task
-            except:
+            except Exception as e:
+                print(f"  Warning: Failed to parse line {line_num+1}: {e}")
                 continue
     
     print(f"Loaded {len(tasks_by_number)} tasks from JSONL")
@@ -399,10 +437,10 @@ def main():
     failed = [r for r in results if r["result"] != "passed"]
     if failed:
         print(f"\n❌ Failed tasks ({len(failed)}):")
-        for r in failed[:10]:
+        for r in failed[:20]:
             print(f"  Task {r['task']:3d}: {r['file']:20} - {r['result']}")
-        if len(failed) > 10:
-            print(f"  ... and {len(failed)-10} more")
+        if len(failed) > 20:
+            print(f"  ... and {len(failed)-20} more")
     
     return stats
 
